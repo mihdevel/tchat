@@ -1,26 +1,11 @@
-from socket import *
 import json
+import shelve
+from socket import *
 from datetime import date, datetime, time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent
-import shelve
-
-
-
-
-# Var
 
 chat = {}
-my_msg = []
-
-# Var
-
-# chatdb = shelve.open('chatdb')
-#
-# for object in chatdb:
-# 	chat = { object: [object[0],object[1]] }
-#
-# print(chat)
 
 # Получение конфигурационных данных
 with open('config.json') as json_file:
@@ -31,14 +16,12 @@ server_port = config['server_port']
 name = config['my_name']
 
 
-
 # Соединение с сервером
 sockobj = socket(AF_INET, SOCK_STREAM)
 sockobj.connect((server_host, server_port))
 
-connection_msg = '< {} connected >'.format(name)
+connection_msg = '< {} подключёны >'.format(name)
 sockobj.send(str.encode(connection_msg))
-my_msg.append(connection_msg)
 
 
 # Получение шаблона чата
@@ -47,7 +30,7 @@ with open('template.txt') as file:
 
 # Запись шаблона чата
 with open('chat.txt', 'w') as file:
-	file.write('<! You logged in as: ' + name + ' !>\n')
+	file.write('<! Вы вошли в систему как: ' + name + ' !>\n')
 	file.write(template_reset)
 
 
@@ -59,15 +42,12 @@ class ChatHandler(FileSystemEventHandler):
 		with open('chat.txt') as file:
 			lines = file.readlines()
 			try:
-				text_str = lines[5].strip()
-				options = lines[1].strip()
+				text_str = lines[4].strip()
 			except IndexError:
 				text_str = ''
-				options = ''
 			
-			if text_str !='' and name !='':# and != my_msg[-1]:
-				sockobj.send(str.encode('{}\t\t\t> {}'.format(name, text_str)))
-
+			if text_str !='' and name !='':
+				sockobj.send(str.encode('{}: {}'.format(name, text_str)))
 
 
 if __name__ == '__main__':
@@ -84,50 +64,31 @@ if __name__ == '__main__':
 			# Проверка получение данных с сервера
 			if not data:
 				raise KeyboardInterrup
-			# continue
 			
 			dateTimeNow = datetime.strftime(datetime.now(), "%d.%m.%Y %H:%M:%S")
-
 			chat[dateTimeNow] = data.decode('utf-8')
-			print(chat)
+			print(chat[dateTimeNow])
 
 			# Перезагрузка шаблона + подгрузка сообщений
 			with open('chat.txt', 'w') as file:
-				file.write('<! You logged in as: ' + name + ' !>\n')
+				file.write('<! Вы вошли в систему как: ' + name + ' !>\n')
 				file.write(template_reset)
 				
 				dateTimeMsgs = []
 				for dateTimeMsg in chat:
 					dateTimeMsgs.append(dateTimeMsg)
-				
+
 				dateTimeMsgs.reverse()
-				
 				for dateTimeMsg in dateTimeMsgs:
 					file.write(dateTimeMsg+'\n'+chat[dateTimeMsg]+'\n\n')
-			
-			# print('Response:', data)
-		
-				# data = ast.literal_eval(data.decode('utf-8'))
-				# data = json.loads(data.decode('utf-8').replace("'", '"'))
-				# name = data['name']
-				# msg = data['msg']
-				# print(data)
-				# chat[datetimeMsg] = [name,msg]
-				# continue
+					# print(chat[dateTimeMsg])
 	
 	# Акуратненько все закрываем если была нажаты клавишы выхода (в linux это CTRL+C)
 	except KeyboardInterrupt:
-		disconnection_msg = '< {} disconnected >'.format(name)
+		disconnection_msg = '< {} отключёны >'.format(name)
 		sockobj.send(str.encode(disconnection_msg))
 		sockobj.close()
-		
-		my_msg.append(disconnection_msg)
-		
 		with open('chat.txt', 'w') as file:
 			file.write('')
 		observer.stop()
-		# db = shelve.open('chatdb')
-		# for datetime in chat:
-		# 	db[datetime] = datetime
-		# db.close()
 	observer.join()

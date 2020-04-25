@@ -1,4 +1,6 @@
 from socket import *
+# from datetime import date, datetime, time
+# import shelve
 
 host = '127.0.0.1'
 port = 5555
@@ -16,20 +18,22 @@ while True:
 		data = connection.recv(1024)
 
 		if not data: break
-		print(data.decode('utf-8'), address)
+		print(address, data.decode('utf-8'))
+
+		# db = shelve.open('chatdb')
+
+		# if data.decode('utf-8').find("подключёны") != -1:
+		# 	for obj in db:
+		# 		connection.send({ obj: [obj[0],obj[1]] })
+
+		# else:
+		# 	connection.send(data)
+
+		# 	dateTimeNow = datetime.strftime(datetime.now(), "%d.%m.%Y %H:%M:%S")
+		# 	chat[dateTimeNow] = data.decode('utf-8')
+		# 	for datetime in chat:
+		# 		db[datetime] = datetime
+		# db.close()
+
 		connection.send(data)
 	connection.close()
-
-
-# while True:
-# 	connection, address = sockobj.recvfrom(1024)
-
-# 	if addr not in clients:
-# 		clients.append(addr)
-
-# 	# Обработа информации
-# 	print(data.decode('utf-8'))
-# 	for client in clients:
-# 		server_socket.sendto(data, client)
-
-# server_socket.close()
