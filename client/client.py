@@ -63,7 +63,7 @@ if __name__ == '__main__':
 			
 			# Проверка получение данных с сервера
 			if not data:
-				raise KeyboardInterrup
+				raise KeyboardInterrupt
 			
 			dateTimeNow = datetime.strftime(datetime.now(), "%d.%m.%Y %H:%M:%S")
 			chat[dateTimeNow] = data.decode('utf-8')
@@ -80,7 +80,8 @@ if __name__ == '__main__':
 
 				dateTimeMsgs.reverse()
 				for dateTimeMsg in dateTimeMsgs:
-					file.write(dateTimeMsg+'\n'+chat[dateTimeMsg]+'\n\n')
+					file.write(chat[dateTimeMsg])
+					# file.write(dateTimeMsg+'\n'+chat[dateTimeMsg]+'\n\n')
 					# print(chat[dateTimeMsg])
 	
 	# Акуратненько все закрываем если была нажаты клавишы выхода (в linux это CTRL+C)
