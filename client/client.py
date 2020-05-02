@@ -1,3 +1,4 @@
+from sys import argv
 import json
 import shelve
 from socket import *
@@ -5,16 +6,25 @@ from datetime import date, datetime, time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent
 
+HOST = "127.0.0.1"
+PORT = 5555
 chat = {}
 
 # Получение конфигурационных данных
-with open('config.json') as json_file:
-	config = json.load(json_file)
-	
-server_host = config['server_host']
-server_port = config['server_port']
-name = config['my_name']
-
+try:
+	with open('config.json') as json_file:
+		config = json.load(json_file)
+	server_host = config['server_host']
+	server_port = config['server_port']
+	name = config['my_name']
+except FileNotFoundError:
+	server_host = HOST
+	server_port = PORT
+	try:
+		name = argv[1]
+	except IndexError:
+		print("Введите ваше имя:")
+		name = input()
 
 # Соединение с сервером
 sockobj = socket(AF_INET, SOCK_STREAM)
